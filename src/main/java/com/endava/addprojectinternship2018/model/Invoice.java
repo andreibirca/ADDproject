@@ -5,9 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.*;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 import java.security.PrivateKey;
 import java.time.LocalDate;
 
@@ -22,15 +23,15 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column
-//    @Pattern(regexp = "[0-9]+[\\.]+[0-9]", message = "Do not match the numerical pattern")
+    @NotNull
+    @DecimalMin("0.0")
     private double sum;
 
-    @Column
+    @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate issueDate;
 
-    @Column
+    @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
 

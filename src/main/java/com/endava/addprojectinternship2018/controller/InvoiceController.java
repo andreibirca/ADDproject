@@ -13,6 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @Controller
 @RequestMapping(value = "invoice")
 public class InvoiceController {
@@ -31,7 +33,7 @@ public class InvoiceController {
 
     @GetMapping(value = "createNew")
     public String showNewInvoice(Model model){
-        model.addAttribute("invoice", new Invoice());
+        model.addAttribute("invoice", new InvoiceDto());
         Company company = userUtil.getCurrentCompany();
         model.addAttribute("listOfContracts", contractService
                 .getContractsByCompanyName(company.getName()));
@@ -40,17 +42,26 @@ public class InvoiceController {
 }
 
     @PostMapping(value = "createNew")
-    public String createNewInvoice(@ModelAttribute InvoiceDto invoiceDto, BindingResult result){
+    public String createNewInvoice(@ModelAttribute @Valid InvoiceDto invoiceDto, BindingResult bindingResult
+                                    , Model model){
+        System.out.println(invoiceDto);
+
+        if (bindingResult.hasErrors()){
+            model.addAttribute("invoice", invoiceDto);
+            Company company = userUtil.getCurrentCompany();
+            model.addAttribute("listOfContracts", contractService
+                    .getContractsByCompanyName(company.getName()));
+            model.addAttribute("productList", productService.getAllProducts());
+            return "invoice/newInvoice";
+        }
         invoiceService.saveDto(invoiceDto);
         return "redirect:/company/invoices";
     }
 
     @GetMapping(value = "deleteInvoice")
-    public String deleteUserByUsername(@RequestParam("invoiceId") int invoiceId){
-        Invoice invoice = null;
-       invoiceService.deleteInvoice();
-//        userService.deleteUser(username);
-        return "redirect:/company/contracts";
+    public String deleteInvoiceById(@RequestParam("id") int invoiceId){
+        invoiceService.deleteInvoice(invoiceId);
+        return "redirect:/company/invoices";
     }
 
 }
